@@ -52,13 +52,13 @@ endmodule
 
 
 module clock_select (
-    output reg enable_pulse, // Selected clock Frequency
+    output reg enable_pulse,      // Selected clock Frequency
     input [1:0]speed,             //Selected Switches
-    input clk,               // 100 MHz input clock
-    input rst                // Reset   
+    input clk,                    // 100 MHz input clock
+    input rst                     // Reset   
 );
-     reg [26:0] cnt;             // Counter (large enough for 100M)
-    reg [26:0] threshold;       // Compare value for selected frequency
+    reg [26:0] cnt;              // Counter (large enough for 100M)
+    reg [26:0] threshold;        // Compare value for selected frequency
     
     // Calculate threshold based on speed selection
     always @(*) begin
