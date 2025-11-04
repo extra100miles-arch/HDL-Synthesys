@@ -24,7 +24,7 @@ module fsm(
     reg [3:0] I2_reg;
     reg [3:0] I3_reg;
     reg [1:0] S_reg;
-    //integer i;
+
     
     always @ (posedge clk) begin
         if (rst) begin 
