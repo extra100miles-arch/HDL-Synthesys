@@ -135,7 +135,7 @@ module pulse_generator (
             cnt_30sec <= 0;
             en_30sec <= 0;
         end else begin
-            if (cnt_30sec == 9_000_000_00 - 1) begin
+            if (cnt_30sec == 30_000_000_000 - 1) begin
                 cnt_30sec <= 0;
                 en_30sec <= 1;  // Pulse high for one clock cycle
             end else begin
