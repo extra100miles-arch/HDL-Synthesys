@@ -1,0 +1,78 @@
+//=============================================================================
+// LED Peripheral Controller
+// Simple register-mapped peripheral without FSM
+// Based on industry best practices
+//=============================================================================
+module LED_Peripheral(
+    // Clock and Reset
+    input wire clk,              // System clock (100 MHz)
+    input wire reset_n,          // Active-low asynchronous reset
+    
+    // Control Register Interface
+    input wire write_enable,     // Write enable signal
+    input wire [7:0] write_address,  // Register address
+    input wire [7:0] write_data,     // Data to write
+    
+    // LED Output
+    output reg [15:0] led        // 16 LED outputs
+);
+
+    //=========================================================================
+    // Internal Registers (Memory-Mapped)
+    //=========================================================================
+    reg [7:0] LED_control;       // Address 0x01: Control register
+    reg [7:0] LED_data_01;       // Address 0x02: LED data lower byte
+    reg [7:0] LED_data_02;       // Address 0x03: LED data upper byte
+    
+    // Register addresses
+    localparam ADDR_CONTROL = 8'h01;
+    localparam ADDR_DATA_01 = 8'h02;
+    localparam ADDR_DATA_02 = 8'h03;
+    
+    //=========================================================================
+    // Register Write Logic
+    // Sequential block for address decode and register updates
+    //=========================================================================
+    always @(posedge clk or negedge reset_n) begin
+        if (!reset_n) begin
+            // Asynchronous reset - initialize all registers
+            LED_control <= 8'h00;
+            LED_data_01 <= 8'h00;
+            LED_data_02 <= 8'h00;
+        end
+        else if (write_enable) begin
+            // Decode address and write to appropriate register
+            case (write_address)
+                ADDR_CONTROL: LED_control <= write_data;
+                ADDR_DATA_01: LED_data_01 <= write_data;
+                ADDR_DATA_02: LED_data_02 <= write_data;
+                // No default: invalid addresses don't modify registers
+            endcase
+        end
+        // If write_enable is low, registers hold their values
+    end
+    
+    //=========================================================================
+    // Output Generation Logic
+    // Sequential block for LED output based on control register
+    //=========================================================================
+    always @(posedge clk or negedge reset_n) begin
+        if (!reset_n) begin
+            led <= 16'h0000;     // Reset: all LEDs OFF
+        end
+        else begin
+            // Check bit 0 of control register
+            if (LED_control[0]) begin
+                // LED enable = 1: Drive LEDs with data registers
+                // Concatenate: {upper byte, lower byte}
+                led <= {LED_data_02, LED_data_01};
+            end
+            else begin
+                // LED enable = 0: Turn off all LEDs
+                led <= 16'h0000;
+            end
+        end
+    end
+
+endmodule
+
